@@ -1,3 +1,5 @@
+[![Build Status](https://www.travis-ci.com/mage1711/Notus.svg?branch=master)](https://www.travis-ci.com/mage1711/Notus)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

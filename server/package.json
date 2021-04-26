@@ -1,0 +1,54 @@
+{
+  "name": "shared-todo-list-backend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm run prod",
+    "build": "npm-run-all clean transpile",
+    "server": "node ./dist-server/bin/www",
+    "dev": "NODE_ENV=development npm-run-all build server",
+    "prod": " npm-run-all build server",
+    "transpile": "babel . --out-dir dist-server",
+    "clean": "rimraf dist-server",
+    "watch:dev": "nodemon"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-syntax-top-level-await": "^7.12.13",
+    "@babel/preset-env": "^7.12.11",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "mongoose": "^5.11.14",
+    "morgan": "~1.9.1",
+    "nodemon": "^2.0.7",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "@babel/plugin-transform-runtime",
+      "@babel/plugin-syntax-top-level-await"
+    ]
+  },
+  "nodemonConfig": {
+    "exec": "npm run dev",
+    "watch": [
+      "server/*",
+      "public/*"
+    ],
+    "ignore": [
+      "**/__tests__/**",
+      "*.test.js",
+      "*.spec.js"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.12.15"
+  }
+}

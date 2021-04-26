@@ -5,6 +5,8 @@ cache:
   directories:
   - node_modules
 
+before_script: cd client
+
 script:
   - npm run test
   - npm run build

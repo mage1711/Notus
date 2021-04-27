@@ -6,7 +6,6 @@ cache:
   - client/node_modules
 
 
-
 script:
   - cd client
   - npm run test

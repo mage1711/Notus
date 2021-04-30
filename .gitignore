@@ -3,9 +3,16 @@
 # dependencies
 client/node_modules
 server/node_modules
-server/dist
 /.pnp
 .pnp.js
+#build
+
+server/dist
+
+#env
+.env
+.vscode
+
 
 # testing
 /coverage

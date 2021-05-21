@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import config from "./config"
-
-
+import {UserModel} from "../models/User"
 mongoose.connect(config.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true, dbName: "Notus" });
+
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
 export default db;
 
 export const saveToDatabase = (model) => {
@@ -12,6 +13,7 @@ export const saveToDatabase = (model) => {
       if (error) console.error(error);
       console.log(document);
     });
+    console.log(model)
   };
   export const getAllDocuments = async (model) => {
     var results = await model.find({}, function (err, documents) {

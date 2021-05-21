@@ -1,4 +1,5 @@
 import express,{Request,Response} from 'express';
+import db from '../services/database'
 import {saveToDatabase,getAllDocuments} from "../services/database"
 import {UserModel} from "../models/User"
 import mongoose from 'mongoose';

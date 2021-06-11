@@ -1,9 +1,55 @@
-import { prop, getModelForClass } from '@typegoose/typegoose';
-import * as mongoose from 'mongoose';
-export class User {
-    @prop()
-    public name: string;
+import { IsEmail, Length } from 'class-validator'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BeforeInsert,
+} from 'typeorm'
+import bcrypt from 'bcrypt'
+import { classToPlain, Exclude } from 'class-transformer'
+
+@Entity('users')
+export class User extends BaseEntity {
+  constructor(user: Partial<User>) {
+    super()
+    Object.assign(this, user)
   }
-  
-  export const UserModel = getModelForClass(User);
-  
+
+  @Exclude()
+  @PrimaryGeneratedColumn()
+  id: number
+
+  @Index()
+  @IsEmail()
+  @Column({ unique: true })
+  email: string
+
+  @Index()
+  @Length(4, 255, { message: 'Username must be at least 4 characters long' })
+  @Column({ unique: true })
+  username: string
+
+  @Exclude()
+  @Column()
+  @Length(6, 255 , { message: 'Username must be at least 6 characters long' })
+  password: string
+
+  @CreateDateColumn()
+  createAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 6)
+  }
+
+  toJSON() {
+    return classToPlain(this)
+  }
+}

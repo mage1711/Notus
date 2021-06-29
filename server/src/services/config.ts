@@ -10,4 +10,7 @@ if (envFound.error) {
 export default{
     DATABASE_URL: process.env.MONGODB_URI,
     PORT: process.env.PORT,
+    JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
+    NODE_ENV: process.env.NODE_ENV,
+    ORIGIN: process.env.ORIGIN,
 }

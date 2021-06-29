@@ -1,25 +1,88 @@
 import express,{Request,Response} from 'express';
-
-import {saveToDatabase,getAllDocuments} from "../services/database"
-import {PostModel} from "../models/Post"
-import {UserModel} from "../models/User"
+import Post from '../models/Post';
+import Sub from "../models/Sub";
+import authentication from"../services/authentication"
+import Comment from '../models/Comment';
+import loggedIn from "../services/loggedIn"
 
 const router = express.Router();
-router.get('/api/post',[], async (req: Request, res: Response)=>{
-    return res.send(await getAllDocuments(PostModel))
+router.get('/', loggedIn,async (_: Request, res: Response)=>{
+  try {
+    const posts = await Post.find({
+      order: { createdAt: 'DESC' },
+      relations: ['comments', 'votes', 'sub'],
+    })
+
+    if (res.locals.user) {
+      posts.forEach((p) => p.setUserVote(res.locals.user))
+    }
+
+    return res.json(posts)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
+  }
 })
-router.post('/api/post',[],async(req: Request, res: Response)=>{
-    var user = (await getAllDocuments(UserModel))[0]
-    // const user = new UserModel({
-    //     name:"ahmed"
-    // })
-        const post = new PostModel({
-            title:"test title",
-            poster: user
-        })
-      saveToDatabase(post);
-    return res.send('post created')
+router.get('/:identifier/:slug',[], async (req: Request, res: Response)=>{
+  const { identifier, slug } = req.params
+  try {
+    const post = await Post.findOneOrFail(
+      { identifier, slug },
+      { relations: ['sub'] }
+    )
+
+    return res.json(post)
+  } catch (err) {
+    console.log(err)
+    return res.status(404).json({ error: 'Post not found' })
+  }
 })
+
+router.post('/',authentication, async (req: Request, res: Response)=>{
+    const { title, body, sub } = req.body
+
+  const user = res.locals.user
+
+  if (title.trim() === '') {
+    return res.status(400).json({ title: 'Title must not be empty' })
+  }
+
+  try {
+    // find sub
+    const subRecord = await Sub.findOneOrFail({ name: sub })
+
+    const post = new Post({ title, body, user, sub: subRecord })
+    await post.save()
+
+    return res.json(post)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
+  }
+})
+
+router.get('/:identifier/:slug/comments',authentication, async (req: Request, res: Response)=>{
+  const { identifier, slug } = req.params
+  const body = req.body.body
+
+  try {
+    const post = await Post.findOneOrFail({ identifier, slug })
+
+    const comment = new Comment({
+      body,
+      user: res.locals.user,
+      post,
+    })
+
+    await comment.save()
+
+    return res.json(comment)
+  } catch (err) {
+    console.log(err)
+    return res.status(404).json({ error: 'Post not found' })
+  }
+})
+
 
 
 

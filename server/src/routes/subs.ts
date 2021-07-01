@@ -5,8 +5,10 @@ import { getRepository } from 'typeorm'
 import User from '../models/User'
 import Sub from '../models/Sub'
 import authentication from '../services/authentication'
+import loggedIn from "../services/loggedIn"
+import Post from '../models/Post'
 const router = Router()
-router.post('/',authentication, async (req: Request, res: Response)=>{
+router.post('/', authentication, async (req: Request, res: Response) => {
   const { name, title, description } = req.body
 
   const user: User = res.locals.user
@@ -41,8 +43,31 @@ router.post('/',authentication, async (req: Request, res: Response)=>{
   }
 })
 
+router.get('/:name', loggedIn, async (req: Request, res: Response) => {
+
+  const name = req.params.name
+
+  try {
+    const sub = await Sub.findOneOrFail({ name })
+    const posts = await Post.find({
+      where: { sub },
+      order: { createdAt: 'DESC' },
+      relations: ['comments', 'votes'],
+    })
+
+    sub.posts = posts
+
+    if (res.locals.user) {
+      sub.posts.forEach((p) => p.setUserVote(res.locals.user))
+    }
+
+    return res.json(sub)
+  } catch (err) {
+    console.log(err)
+    return res.status(404).json({ sub: 'Sub not found' })
+  }
+})
 
 
 
-
-export {router as subs}
+export { router as subs }

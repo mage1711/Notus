@@ -5,10 +5,11 @@ client/node_modules
 server/node_modules
 /.pnp
 .pnp.js
+node_modules
 #build
 server/migrations
 server/dist
-
+build
 #env
 .env
 .vscode

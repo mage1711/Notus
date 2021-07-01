@@ -23,7 +23,6 @@ export default function Home() {
         {posts.map((post) => (
 
 <PostPreview post={post} key ={post.identifier} />
-       
         ))}
       </div>
       {/* Sidebar */}

@@ -69,7 +69,7 @@ router.get('/profile',authentication, async (_: Request, res: Response)=>{
 return res.json(res.locals.user)
 }
 )
-router.post('/logout',authentication, async (_: Request, res: Response)=>{
+router.get('/logout',authentication, async (_: Request, res: Response)=>{
 res.clearCookie("token")
 return res.json({success:"logged out"})
 }

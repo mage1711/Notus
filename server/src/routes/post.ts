@@ -10,7 +10,7 @@ router.get('/', loggedIn,async (_: Request, res: Response)=>{
   try {
     const posts = await Post.find({
       order: { createdAt: 'DESC' },
-      relations: ['comments', 'votes', 'sub'],
+      relations: ['comments', 'votes', 'sub','user'],
     })
 
     if (res.locals.user) {

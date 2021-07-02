@@ -7,11 +7,16 @@ import loggedIn from "../services/loggedIn"
 import { uploadCloud } from "../services/cloudinary"
 
 const router = express.Router();
-router.get('/', loggedIn, async (_: Request, res: Response) => {
+router.get('/', loggedIn, async (req: Request, res: Response) => {
+  const currentPage: number = (req.query.page || 0) as number
+  const postsPerPage: number = (req.query.count || 10) as number
+
   try {
     const posts = await Post.find({
       order: { createdAt: 'DESC' },
-      relations: ['comments', 'votes', 'sub', 'user'],
+      relations: ['comments', 'votes', 'sub'],
+      skip: currentPage * postsPerPage,
+      take: postsPerPage,
     })
 
     if (res.locals.user) {
@@ -24,13 +29,17 @@ router.get('/', loggedIn, async (_: Request, res: Response) => {
     return res.status(500).json({ error: 'Something went wrong' })
   }
 })
-router.get('/:identifier/:slug', [], async (req: Request, res: Response) => {
+router.get('/:identifier/:slug', loggedIn, async (req: Request, res: Response) => {
   const { identifier, slug } = req.params
   try {
     const post = await Post.findOneOrFail(
       { identifier, slug },
-      { relations: ['sub'] }
+      { relations: ['sub', 'votes', 'comments'] }
     )
+
+    if (res.locals.user) {
+      post.setUserVote(res.locals.user)
+    }
 
     return res.json(post)
   } catch (err) {
@@ -62,7 +71,7 @@ router.post('/', authentication, async (req: Request, res: Response) => {
   }
 })
 
-router.get('/:identifier/:slug/comments', authentication, async (req: Request, res: Response) => {
+router.post('/:identifier/:slug/comments', authentication, async (req: Request, res: Response) => {
   const { identifier, slug } = req.params
   const body = req.body.body
 
@@ -82,11 +91,33 @@ router.get('/:identifier/:slug/comments', authentication, async (req: Request, r
     console.log(err)
     return res.status(404).json({ error: 'Post not found' })
   }
+
 })
 router.post('/upload', uploadCloud.single('image'), async (req: Request, res: Response) => {
   res.json(req.file);
 })
 
+router.get('/:identifier/:slug/comments', loggedIn, async (req: Request, res: Response) => {
+  const { identifier, slug } = req.params
+  try {
+    const post = await Post.findOneOrFail({ identifier, slug })
+
+    const comments = await Comment.find({
+      where: { post },
+      order: { createdAt: 'DESC' },
+      relations: ['votes'],
+    })
+
+    if (res.locals.user) {
+      comments.forEach((c) => c.setUserVote(res.locals.user))
+    }
+
+    return res.json(comments)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
+  }
+})
 
 
 export { router as post }

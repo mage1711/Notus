@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     fontFamily: {
       body: ['IBM Plex Sans'],
-      'pacifico':['Pacifico'],
+      'pacifico': ['Pacifico'],
     },
     extend: {
       colors: {
@@ -22,12 +22,15 @@ module.exports = {
       },
       spacing: {
         70: '17.5rem',
-        160:'40rem'
+        160: '40rem'
       },
     },
   },
   variants: {
-    extend: {},
+    extend: {
+      backgroundColor: ['disabled'],
+      borderColor: ['disabled'],
+    },
   },
   plugins: [
     function ({ addComponents }) {
